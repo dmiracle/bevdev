@@ -1,0 +1,36 @@
+# Phase 8 — Animation & Audio
+
+## Goal
+
+Make it feel alive: animated characters and positional sound.
+
+## Concepts — Animation
+
+- Animation clips bundled in glTF files
+- `AnimationGraph`, `AnimationPlayer`
+- Triggering clips (idle/walk/attack) and animation events
+
+## Concepts — Audio
+
+- Spawning audio (`AudioPlayer` + source handle)
+- Controlling playback (volume, pause, speed)
+- **Spatial** 3D audio tied to entity `Transform`
+
+## Shopping list (docs.rs/bevy/0.18.1)
+
+| Need | Look up |
+|---|---|
+| Animation | `AnimationPlayer`, `AnimationGraph`, `AnimationClip` |
+| Audio | `AudioPlayer`, `AudioSource`, spatial audio settings |
+
+## Dungeon tie-in
+
+Walk/attack animations on the player and enemies; positional sound so footsteps and growls come from the right direction.
+
+## Reference
+
+Examples `animated_mesh.rs`, `animation_graph.rs`, `animation_events.rs`, `spatial_audio_3d.rs`, `audio_control.rs`.
+
+## Done when
+
+The player model animates with movement, and an enemy emits sound that gets louder/directional as you approach.
