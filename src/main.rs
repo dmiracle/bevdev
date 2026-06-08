@@ -1,12 +1,44 @@
+use bevy::input::mouse::*;
 use bevy::prelude::*;
+use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
+
+#[derive(Component)]
+struct CameraController {
+    yaw: f32,
+    pitch: f32,
+    speed: f32,
+    sensitivity: f32,
+}
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (setup, grab_cursor))
+        .add_systems(Update, (camera_controller, toggle_cursor_grab))
         .run();
 }
 
+fn grab_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
+    let mut cursor = cursor.single_mut().unwrap();
+    cursor.grab_mode = CursorGrabMode::Locked;
+    cursor.visible = false;
+}
+
+fn toggle_cursor_grab(
+    keys: Res<ButtonInput<KeyCode>>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
+    mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>,
+) {
+    let mut cursor = cursor.single_mut().unwrap();
+    if keys.just_pressed(KeyCode::Escape) {
+        cursor.grab_mode = CursorGrabMode::None;
+        cursor.visible = true;
+    }
+    if mouse_buttons.just_pressed(MouseButton::Left) {
+        cursor.grab_mode = CursorGrabMode::Locked;
+        cursor.visible = false;
+    }
+}
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -23,10 +55,6 @@ fn setup(
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
     commands.spawn((
-        Camera3d::default(),
-        Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
-    commands.spawn((
         Mesh3d(cube_mesh),
         MeshMaterial3d(cube_mat),
         Transform::from_xyz(0.0, 0.5, 0.5),
@@ -38,4 +66,54 @@ fn setup(
         },
         Transform::from_xyz(4.0, 8.0, 4.0),
     ));
+
+    // Camera
+    commands.spawn((
+        Camera3d::default(),
+        Transform::from_xyz(-2.5, 4.5, 9.0),
+        CameraController {
+            yaw: -0.4,
+            pitch: -0.4,
+            speed: 5.0,
+            sensitivity: 0.003,
+        },
+    ));
+}
+
+fn get_direction(keys: &ButtonInput<KeyCode>, transform: &Transform) -> Vec3 {
+    let mut direction = Vec3::ZERO;
+    if keys.pressed(KeyCode::KeyW) {
+        direction += *transform.forward();
+    }
+    if keys.pressed(KeyCode::KeyA) {
+        direction -= *transform.right();
+    }
+    if keys.pressed(KeyCode::KeyS) {
+        direction -= *transform.forward();
+    }
+    if keys.pressed(KeyCode::KeyD) {
+        direction += *transform.right();
+    }
+    direction.normalize_or_zero()
+}
+
+fn camera_controller(
+    mut query: Query<(&mut Transform, &mut CameraController)>,
+    keys: Res<ButtonInput<KeyCode>>,
+    mouse: Res<AccumulatedMouseMotion>,
+    time: Res<Time>,
+) {
+    let (mut transform, mut controller) = query.single_mut().unwrap();
+
+    let delta = mouse.delta;
+    controller.yaw -= delta.x * controller.sensitivity;
+    controller.pitch -= delta.y * controller.sensitivity;
+
+    // pitch clamp to prevent flipping over the top
+    controller.pitch = controller.pitch.clamp(-1.54, 1.54);
+    transform.rotation = Quat::from_axis_angle(Vec3::Y, controller.yaw)
+        * Quat::from_axis_angle(Vec3::X, controller.pitch);
+    let direction = get_direction(&keys, &transform);
+    transform.translation += direction * controller.speed * time.delta_secs();
+    // info!("yaw={:.3} pitch={:.3}", controller.yaw, controller.pitch);
 }
