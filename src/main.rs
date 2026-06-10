@@ -10,14 +10,47 @@ struct CameraController {
     sensitivity: f32,
 }
 
+#[derive(Component)]
+struct Collider {
+    half_extents: Vec3,
+}
+
+#[derive(Resource)]
+struct LogTimer(Timer);
+
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .insert_resource(LogTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
         .add_systems(Startup, (setup, grab_cursor))
-        .add_systems(Update, (camera_controller, toggle_cursor_grab))
+        .add_systems(Update, toggle_cursor_grab)
+        .add_systems(Update, (camera_controller, resolve_collisions).chain())
         .run();
 }
 
+fn resolve_collisions(
+    mut player: Query<&mut Transform, With<CameraController>>,
+    walls: Query<(&Transform, &Collider), Without<CameraController>>,
+    time: Res<Time>,
+    mut log_timer: ResMut<LogTimer>,
+) {
+    log_timer.0.tick(time.delta());
+    let player_pos = player.single_mut().unwrap().translation;
+
+    if log_timer.0.just_finished() {
+        info!("player position {player_pos:?}");
+        info!("wall cournt: {}", walls.iter().count());
+    }
+    for (wall_transform, collider) in &walls {
+        let center = wall_transform.translation;
+        let min = center - collider.half_extents;
+        let max = center + collider.half_extents;
+        if log_timer.0.just_finished() {
+            info!("wall center={:.3}, min={:.3}, max={:.3}", center, min, max);
+        }
+    }
+}
 fn grab_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
     let mut cursor = cursor.single_mut().unwrap();
     cursor.grab_mode = CursorGrabMode::Locked;
@@ -58,6 +91,9 @@ fn setup(
         Mesh3d(cube_mesh),
         MeshMaterial3d(cube_mat),
         Transform::from_xyz(0.0, 0.5, 0.5),
+        Collider {
+            half_extents: Vec3::new(0.5, 0.5, 0.5)
+        },
     ));
     commands.spawn((
         PointLight {

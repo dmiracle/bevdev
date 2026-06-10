@@ -17,9 +17,6 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | How do I add rust-analyzer to nvim? | Install `rust-analyzer`, add `rust-src`, then enable `rust_analyzer` through Neovim LSP config. |
 | 1 | How do I set tabs to 4 spaces? | Set `tabstop=4`, `shiftwidth=4`, `expandtab`, and usually `softtabstop=4`. |
 | 1 | How do I insert a newline above in nvim? | Press `O` in normal mode to open a line above and enter insert mode. |
-| 1 | How do I run the rust linter? | Run `cargo clippy`. |
-| 1 | Should the linter catch different sized tabs in a Rust file? | Usually no. This is a formatting/editor setting issue, not something `clippy` is meant to enforce. Use `rustfmt` and editor tab settings. |
-| 1 | How do I run rustfmt on my project? | Run `cargo fmt` from the project root. |
 | 1 | How do I move a text block up or down in nvim? | In visual mode, select the block and use `:m '<-2` to move up or `:m '>+1` to move down. |
 | 1 | How do I remove a visual block and paste it at a certain line in nvim? | Yank or cut the selection with `d` or `y`, jump to the target line, then paste with `p` or `P`. |
 | 1 | How do I jump to the last line in vim? | Use `G`. |
@@ -31,6 +28,23 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | How do I switch to another tab in nvim? | Use `gt` for the next tab, `gT` for the previous tab, or `:tabnext N`. |
 | 1 | How do I jump to the top of a file? | Use `gg`. |
 | 1 | How do I do a global find and replace? | Use `:%s/old/new/g` to replace across the whole file. |
+
+## Rust
+
+| Score | Question | Short answer |
+|---|---|---|
+| 1 | How do I run the rust linter? | Run `cargo clippy`. |
+| 1 | Should the linter catch different sized tabs in a Rust file? | Usually no. This is a formatting/editor setting issue, not something `clippy` is meant to enforce. Use `rustfmt` and editor tab settings. |
+| 1 | How do I run rustfmt on my project? | Run `cargo fmt` from the project root. |
+
+## Rust + Neovim
+
+| Score | Question | Short answer |
+|---|---|---|
+| 1 | How do I add rust-analyzer to nvim? | Install `rust-analyzer`, add `rust-src`, then enable `rust_analyzer` through Neovim LSP config. |
+| 1 | How do I get rust-analyzer to display why it is tagging an error? | Open the diagnostic float with `vim.diagnostic.open_float()` or hover the item; the message usually explains the reason. |
+| 1 | How do I open a Rust definition in a new tab with rust-analyzer? | Use `:tab split | lua vim.lsp.buf.definition()` from the symbol, or map a key to that sequence. |
+| 1 | How do I view the rust-analyzer output if it is showing an error? | Use `:lua print(vim.lsp.get_log_path())` to find the LSP log, and `:checkhealth vim.lsp` or `:lua vim.diagnostic.open_float()` to inspect errors. |
 
 ## Glow
 
