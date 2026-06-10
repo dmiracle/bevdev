@@ -29,7 +29,10 @@ fn main() {
         .insert_resource(LogTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
         .add_systems(Startup, (setup, grab_cursor))
         .add_systems(Update, toggle_cursor_grab)
-        .add_systems(Update, (camera_controller, resolve_collisions, update_debug_text).chain())
+        .add_systems(
+            Update,
+            (camera_controller, resolve_collisions, update_debug_text).chain(),
+        )
         .run();
 }
 
@@ -63,7 +66,9 @@ fn resolve_collisions(
             && player_pos.z > min.z
             && player_pos.z < max.z;
 
-        if !inside { continue };
+        if !inside {
+            continue;
+        };
 
         // calcluate penetration depth
         let p_min = player_pos - min;
@@ -83,7 +88,7 @@ fn resolve_collisions(
         pen_vec[correction.0] = correction.1;
 
         // adjust translation along correct axis
-            player_pos += pen_vec;
+        player_pos += pen_vec;
 
         // slow timer for printing logs
         if log_timer.0.just_finished() {
