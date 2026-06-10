@@ -6,15 +6,16 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 
 ## Current state
 
-- **Phase 3 (collision) in progress.** Walls now have `Collider` components and the wall query loop fires. **Next task: implement the point-inside-AABB test against `player_pos`, then MTV resolution.**
+- **Phase 3 (collision) code-complete.** AABB + MTV + player-radius inflation working; perimeter walls spawned from a data array; sliding and corners verified; debug overlay shows post-correction position (chained move → resolve → display). **Remaining: final nits (dead `if inside`, stray `;`, comment typos), then feature-branch commit/merge — flip phase status after.** Stray untracked `src/camera.rs` to delete before committing.
 - Commits happen per phase on feature branches (user runs git).
 
 ## Open questions / deferred items
 
 - **Cursor-released camera spin** — after Escape, `camera_controller` still reads mouse motion. Proper fix: run conditions with game states (Phase 4). Deliberately deferred.
 - **Grounded movement** — `forward()` includes Y, so W while looking up flies. Correct fly-cam behavior for now; flatten forward/right to XZ when dungeon walking arrives (Phase 3/5).
-- **Player radius** — collision is point-based; later inflate wall half-extents by a player radius so the camera can't touch wall faces.
+- **Player radius** — resolution chosen (Minkowski inflation of wall half-extents by `PLAYER_RADIUS` ~0.4 inside `resolve_collisions`); implementation in flight. Later: promote the const to a tunable (doorway widths in Phase 5 depend on it).
 - **Floor collider** — floor has no `Collider`; ground handling decision deferred.
+- **Module/plugin split** — `main.rs` is getting cluttered; split into module-per-concern plugins (`camera.rs`, `collision.rs`, `world.rs`). Deliberately deferred to **Phase 4 Step 0** (see `phase-4-states.md`) so it doesn't overlap with collision debugging.
 
 ---
 
@@ -72,3 +73,16 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 - **Throttled logging**: `LogTimer(Timer)` resource; `tick(time.delta())` once per frame (outside loops, unconditionally); `just_finished()` fires one frame per interval. `TimerMode::Repeating` auto-resets. Alternatives: `t_info!` macro_rules (`$($arg:tt)*` forwarding idiom; statics for hidden state trade away Bevy `Time`), built-in `info_once!`.
 - **Bug: query never matched** — `Collider` was *defined* but never *attached*; queries only match components that exist on entities. Debug move: `walls.iter().count()`. Fix: add the component to the spawn tuple.
 - **Printing math types**: `Vec3` implements `Debug` and `Display` — `info!("{pos:?}")` works directly (inline capture, edition 2021+); per-field `{:.2}` for decimal control.
+- **Bug: mutating a copy** — `let pos = transform.translation;` copies (`Vec3` is `Copy`); corrections applied to the local never reached the World, so the position "reverted" every frame. Fix: resolve on the local through the wall loop, write it back to the transform once after the loop. Python contrast: assignment there aliases, in Rust `Copy` types duplicate.
+- **Bug: MTV sign** — depth was computed correctly but always applied positive; pushes through a wall's min-side face. The `p_min[i] < p_max[j]` comparison already encodes the direction: min-face wins → negative correction, max-face wins → positive. Keep `(axis, signed_depth)` instead of re-finding the min.
+- **MTV scale is exactly 1.0** — snap precisely to the face; any multiplier overshoots and reads as bounce/jitter.
+- **glam index helpers**: `min_position()` returns the index of the smallest component; `Vec3` supports indexing (`v[i]`).
+- **Per-frame `info!` causes visible hitching** — unthrottled logging in a collision branch masqueraded as a physics bug. Gate per-frame logs behind the `LogTimer` or delete after use.
+- **Test geometry matters** — a 1 m cube can't demonstrate sliding (you slip off instantly) and approaching from above makes the top face win the MTV (reads as bouncing). A long/tall/thin wall (`Cuboid::new(10, 4, 0.5)`) is the right rig; spawn height vs wall top caught us once (camera at y=4.5 sails over a y≤4 wall — collision correctly never fires).
+- **On-screen debug text (Phase 9 preview)**: UI is entities — `Text::new(..)` + `Node { position_type: Absolute, top/left: Val::Px(..) }` + marker component; update system assigns `text.0 = format!(..)`. Runs `.after(resolve_collisions)` so the displayed position is post-correction. No extra camera needed; UI overlays the existing `Camera3d`.
+- **Player radius via Minkowski inflation** — point-vs-(box grown by r) ≡ sphere-of-r-vs-box: add `Vec3::splat(PLAYER_RADIUS)` to half-extents when building min/max in `resolve_collisions`; detection, depths, MTV all unchanged. Keeps the camera's ~0.1 near plane out of wall faces (r ≥ ~0.3). Known approximation: corners act squared-off, not rounded — universally accepted in AABB games.
+- **Scratch crate workflow**: sibling crate (`~/a/rscratch`) with just `glam` for math experiments; `std::any::type_name::<T>()` reveals a type's true path (`bevy::prelude::Vec3` *is* `glam::f32::vec3::Vec3` — re-export, not a wrapper). Discovery moves: `K` hover / `gd` into `~/.cargo/registry` source, docs.rs re-export listings, `cargo tree -i glam`.
+- **Primitive as source of truth**: `meshes.add(cuboid)` bakes the shape into vertex buffers — one-way; the `Mesh` doesn't remember its primitive. Keep the `Cuboid` (it's `Copy`) and derive both the mesh and `half_size` for the collider from it; walls spawn from a `for (size, pos) in [...]` data array (tuple destructuring in the `for` pattern) — proto-dungeon-generator shape.
+- **Handles are shared, assets aren't deduped**: `materials.add` in a loop makes N identical assets; hoist one handle and `.clone()` it per spawn (cheap, reference-counted).
+- **Ordering constraints accumulate**: `.chain()` on a tuple = pairwise `.after()`; separate `add_systems` calls merge into one schedule graph, so a system can be chained in one call and referenced by `.after()` in another. Constrain only real data dependencies — everything else stays parallel. Pipeline here: `camera_controller → resolve_collisions → update_debug_text`.
+- **Temporaries vs named bindings**: an unbound `query.single_mut().unwrap().translation` drops its `Mut` at end of statement (forcing a re-acquire later); `let mut transform = ...` keeps it alive to end of scope. Holding the player `Mut` while iterating `&walls` is fine — the `With`/`Without` filters already proved the queries disjoint. Writing through a `Mut` flags change detection even if the value is unchanged (unconditional write-back each frame is harmless today; gate it when something reacts to `Changed<Transform>`).

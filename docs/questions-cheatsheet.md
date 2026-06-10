@@ -22,12 +22,16 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | How do I jump to the last line in vim? | Use `G`. |
 | 1 | How do I paste inline after a visual yank in nvim? | Use `p` to paste after the cursor or `P` to paste before it; for linewise yanks, `p` places it below the current line. |
 | 1 | How do I move backwards by word in nvim? | Use `b` to jump to the start of the previous word. |
+| 1 | How do I delete a word without entering insert mode? | Use `dw` to delete from the cursor to the start of the next word. |
 | 1 | How do I open a function definition from Rust in nvim? | Use `gd` to jump to the local definition, or `gD` for the global definition. |
 | 1 | How do I get rust-analyzer to display why it is tagging an error? | Open the diagnostic float with `vim.diagnostic.open_float()` or hover the item; the message usually explains the reason. |
 | 1 | How can I open a file in a new tab in nvim? | Use `:tabnew filename` or `:tabedit filename`. |
 | 1 | How do I switch to another tab in nvim? | Use `gt` for the next tab, `gT` for the previous tab, or `:tabnext N`. |
 | 1 | How do I jump to the top of a file? | Use `gg`. |
 | 1 | How do I do a global find and replace? | Use `:%s/old/new/g` to replace across the whole file. |
+| 1 | Can I show 2 tabs side by side in nvim? | Not as tabs; use a vertical split with `:vsplit` or `:vsp`. |
+| 1 | How do I switch between splits in nvim? | Use `Ctrl-w` followed by `h`, `j`, `k`, or `l` to move between windows. |
+| 1 | After a search with `/`, how do I set the cursor to the found word? | Press `Enter` to jump to the current match; `n` and `N` move through matches. |
 
 ## Rust
 
@@ -45,6 +49,8 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | How do I get rust-analyzer to display why it is tagging an error? | Open the diagnostic float with `vim.diagnostic.open_float()` or hover the item; the message usually explains the reason. |
 | 1 | How do I open a Rust definition in a new tab with rust-analyzer? | Use `:tab split | lua vim.lsp.buf.definition()` from the symbol, or map a key to that sequence. |
 | 1 | How do I view the rust-analyzer output if it is showing an error? | Use `:lua print(vim.lsp.get_log_path())` to find the LSP log, and `:checkhealth vim.lsp` or `:lua vim.diagnostic.open_float()` to inspect errors. |
+| 1 | Is there a way in nvim to move to the next function in Rust? | Try `]m` for the next method/function start and `[m` for the previous one. |
+| 1 | How do I exit comment mode after creating a newline under a comment in rust? | Press `Enter` or `o` to keep the comment, or disable auto-comment continuation with `:set formatoptions-=r formatoptions-=o`. |
 
 ## Glow
 
@@ -57,3 +63,9 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | Score | Question | Short answer |
 |---|---|---|
 | 1 | How do I switch between terminals in the same window from the keyboard? | Check `ghostty +list-keybinds --default` and look for `next_tab`, `previous_tab`, or `goto_split`. |
+
+## Git
+
+| Score | Question | Short answer |
+|---|---|---|
+| 1 | How do I change the commit message on my last git commit? | Run `git commit --amend -m "new message"`. |

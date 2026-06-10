@@ -23,7 +23,7 @@ A staged pathway for building a **3D free-roam dungeon crawler** while learning 
 | 1 | [phase-1-3d-scene.md](phase-1-3d-scene.md) | A lit 3D room on screen — **done** ✅ |
 | 2 | [phase-2-camera.md](phase-2-camera.md) | Free-roam camera (WASD + mouse-look) — **done** ✅ |
 | 3 | [phase-3-collision.md](phase-3-collision.md) | Walls that stop you ← **current** |
-| 4 | [phase-4-states.md](phase-4-states.md) | Game states & a menu |
+| 4 | [phase-4-states.md](phase-4-states.md) | Module/plugin reorg, then game states & a menu |
 | 5 | [phase-5-dungeon-gen.md](phase-5-dungeon-gen.md) | Procedural dungeon generation |
 | 6 | [phase-6-gltf.md](phase-6-gltf.md) | Real art via glTF models |
 | 7 | [phase-7-gameplay.md](phase-7-gameplay.md) | Enemies, combat, items |
