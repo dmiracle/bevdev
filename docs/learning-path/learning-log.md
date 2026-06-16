@@ -6,16 +6,15 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 
 ## Current state
 
-- **Phase 3 (collision) code-complete.** AABB + MTV + player-radius inflation working; perimeter walls spawned from a data array; sliding and corners verified; debug overlay shows post-correction position (chained move → resolve → display). **Remaining: final nits (dead `if inside`, stray `;`, comment typos), then feature-branch commit/merge — flip phase status after.** Stray untracked `src/camera.rs` to delete before committing.
+- **Phase 4 done ✅.** `GameState { Menu (default), Playing, Paused }` cycling works: menu UI spawns/despawns via `OnEnter`/`OnExit(Menu)` + `MenuUi` marker cleanup, Space starts the game, cursor lock/unlock follows state via `OnEnter` handlers. **Next: Phase 5 Step 0 — split `main.rs` into module-per-concern plugins (the committed priority), then a cleanup pass that gates `toggle_cursor_grab`.** (Commit Phase 4 on its feature branch — user runs git.)
 - Commits happen per phase on feature branches (user runs git).
 
 ## Open questions / deferred items
 
-- **Cursor-released camera spin** — after Escape, `camera_controller` still reads mouse motion. Proper fix: run conditions with game states (Phase 4). Deliberately deferred.
 - **Grounded movement** — `forward()` includes Y, so W while looking up flies. Correct fly-cam behavior for now; flatten forward/right to XZ when dungeon walking arrives (Phase 3/5).
 - **Player radius** — resolution chosen (Minkowski inflation of wall half-extents by `PLAYER_RADIUS` ~0.4 inside `resolve_collisions`); implementation in flight. Later: promote the const to a tunable (doorway widths in Phase 5 depend on it).
 - **Floor collider** — floor has no `Collider`; ground handling decision deferred.
-- **Module/plugin split** — `main.rs` is getting cluttered; split into module-per-concern plugins (`camera.rs`, `collision.rs`, `world.rs`). Deliberately deferred to **Phase 4 Step 0** (see `phase-4-states.md`) so it doesn't overlap with collision debugging.
+- **Module/plugin split — COMMITTED as the first task after Phase 4** (user explicitly prioritized 2026-06-15; `main.rs` clutter now actively biting during the states work). Split into module-per-concern plugins (`camera.rs`, `collision.rs`, `world.rs`, `state.rs`/menu). This is **Phase 5 Step 0** (see `phase-5-dungeon-gen.md`) and is a hard prerequisite — do it before any dungeon-gen code, not deferred further.
 
 ---
 
@@ -63,7 +62,7 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 - **Cursor grab (0.18)**: `CursorOptions` is its own component on the window entity (not a `Window` field). Query `&mut CursorOptions, With<PrimaryWindow>`; set `grab_mode` (`CursorGrabMode::Locked` — macOS doesn't support `Confined`) and `visible`. `just_pressed` (edge) vs `pressed` (held) for toggles.
 - **Frame timing**: winit runner loop = one iteration per frame; paced by VSync (`Fifo` present mode) → monitor refresh is the effective clock. `Time`'s delta is *measured* wall-clock elapsed, not a target. `FixedUpdate` runs at a constant timestep (~64 Hz, accumulator catch-up) — the home for physics later.
 
-## Phase 3 — Collision (in progress)
+## Phase 3 — Collision ✅
 
 - **AABB**: axis-aligned box as center + half-extents (`half = full_size / 2`; `Vec3::splat` for uniform). `min = c - h`, `max = c + h`. Collider must match the visible mesh.
 - **Point-inside test**: three AND-ed range checks, one per axis.
@@ -86,3 +85,16 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 - **Handles are shared, assets aren't deduped**: `materials.add` in a loop makes N identical assets; hoist one handle and `.clone()` it per spawn (cheap, reference-counted).
 - **Ordering constraints accumulate**: `.chain()` on a tuple = pairwise `.after()`; separate `add_systems` calls merge into one schedule graph, so a system can be chained in one call and referenced by `.after()` in another. Constrain only real data dependencies — everything else stays parallel. Pipeline here: `camera_controller → resolve_collisions → update_debug_text`.
 - **Temporaries vs named bindings**: an unbound `query.single_mut().unwrap().translation` drops its `Mut` at end of statement (forcing a re-acquire later); `let mut transform = ...` keeps it alive to end of scope. Holding the player `Mut` while iterating `&walls` is fine — the `With`/`Without` filters already proved the queries disjoint. Writing through a `Mut` flags change detection even if the value is unchanged (unconditional write-back each frame is harmless today; gate it when something reacts to `Changed<Transform>`).
+
+## Phase 4 — Game states & menu ✅
+
+- **States API (0.18)**: enum deriving `States` (+ `Clone, PartialEq, Eq, Hash, Debug, Default`); `#[default]` marks the boot state. `.init_state::<T>()` on the App creates the `State<T>`/`NextState<T>` resources — deriving alone puts nothing in the World (same lesson as Collider-never-attached, one level up: forgetting it compiles fine, then panics at first `Res<State<T>>`).
+- **Reading/writing state**: read `Res<State<T>>` → `.get()`; request changes via `ResMut<NextState<T>>::set(..)` — applied at a transition point between frames, not instantly.
+- **`run_if(in_state(..))`** on the chained tuple gates the whole pipeline as a unit; the toggle system stays ungated so it can run while `Paused` to resume. This fixed the cursor-released camera-spin bug (oldest open question).
+- **`::` vs `.`**: `::` navigates namespaces (modules, types, associated items — `GameState::Paused`, `Vec3::ZERO`); `.` accesses values. `variable::Trait` is nonsense — "print with Debug" is spelled `{:?}` in the format string, not a path. `{}` requires `Display`, `{:?}` requires `Debug`.
+- **Don't depend on bevy subcrates directly**: `bevy_state = "0.18.1"` alongside `bevy` resolves to one crate instance today, but version drift links *two copies* — your derive implements copy A's trait, bevy expects copy B's → baffling "trait not implemented" errors. Everything reaches through `bevy::prelude`/`bevy::` paths; `cargo tree -i bevy_state` shows the duplication risk. (Root cause of the "unresolved crate" detour: a `use bevy_state::...` line copied from standalone-crate docs *caused* the error; cargo-adding the dep papered over it.)
+- **Identity transitions**: `NextState::set(Playing)` while already `Playing` is a no-op request — harmless until `OnEnter(Playing)` has side effects; guard on current state when that lands (combat clicks, Phase 7).
+- **`OnEnter`/`OnExit` are transition schedules** (like `Startup`, but fired by state changes): one-time per transition. `OnEnter(default)` runs once at boot — so booting into `Menu` fires `OnEnter(Menu)`, which is why cursor-release-on-menu works without a `Startup` grab. Pattern: `OnEnter` = spawn/setup, `OnExit` = despawn cleanup (tag with a marker, `Query<Entity, With<Marker>>`, `commands.entity(e).despawn()` in a loop).
+- **One-time vs per-frame placement bug**: registering `menu_input` (which polls `just_pressed(Space)`) in `OnEnter(Menu)` ran it once on entry — keypress never seen. Per-frame polling belongs in `Update` + `run_if(in_state(Menu))`; `OnEnter` is for one-shot setup only. Masked at first because ungated `toggle_cursor_grab`'s left-click branch also sets `Playing`, so clicking "worked."
+- **Cursor follows state**: lock/unlock moved out of input handlers into `OnEnter(Playing)` = lock, `OnEnter(Menu)/(Paused)` = release. Input handlers should *request a state change*; the cursor reacts to the state. Shared `set_cursor(&mut CursorOptions, locked: bool)` helper (deref-coerce `&mut single_mut().unwrap()`); thin `lock_cursor`/`release_cursor` system wrappers.
+- **Still ungated**: `toggle_cursor_grab` runs in all states (Escape→Paused, click→Playing everywhere) — Escape-from-menu reaches a nonsensical Paused, click-from-menu is a second menu exit. Deliberately deferred to the **post-split cleanup pass** (Phase 5 Step 0 follow-up): gate Escape→Paused to `in_state(Playing)` and click→Playing to `in_state(Paused)`.

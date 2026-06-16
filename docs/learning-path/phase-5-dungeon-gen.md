@@ -4,6 +4,17 @@
 
 Generate a random, walkable, fully-enclosed level instead of a hand-placed room. **The heart of the game.**
 
+## Step 0 — Split `main.rs` into module-per-concern plugins (PRIORITY)
+
+Committed as the first task after Phase 4 (user-prioritized) — a hard prerequisite, on a green build, before any generation work:
+
+- Target layout: `main.rs` (App construction only), `camera.rs`, `collision.rs`, `world.rs`, `state.rs` (states + menu + cursor) and soon `dungeon.rs` — one module per concern, each exposing a `pub struct FooPlugin` with `impl Plugin` whose `build` registers that module's systems/resources/state hooks.
+- Rust module concepts: `mod foo;` declarations, private-by-default visibility (`pub` only what crosses the boundary), `use crate::...` paths, per-module `use bevy::prelude::*;`.
+- Cross-plugin ordering: replace the in-`main` `.chain()` with `.after(camera::camera_controller)` etc. — or graduate to system sets.
+- Method: create files, cut-paste the existing clusters, then follow `cargo check` errors until quiet — the compiler walks you through every needed `mod`/`pub`/`use`.
+
+**Step 0 done when:** `main()` only adds plugins, behavior is unchanged, and nothing is `pub` that doesn't need to be.
+
 ## This is mostly algorithm work, not Bevy
 
 You compute a grid/graph in **plain Rust**, then spawn entities from it. Keep generation logic separate from spawning.

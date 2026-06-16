@@ -2,6 +2,17 @@ use bevy::input::mouse::*;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
+enum GameState {
+    #[default]
+    Menu,
+    Playing,
+    Paused,
+}
+
+#[derive(Component)]
+struct MenuUi;
+
 #[derive(Component)]
 struct CameraController {
     yaw: f32,
@@ -26,14 +37,51 @@ const PLAYER_RADIUS: f32 = 0.4;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .init_state::<GameState>()
+        .add_systems(OnEnter(GameState::Playing), lock_cursor)
+        .add_systems(OnEnter(GameState::Paused), release_cursor)
+        .add_systems(OnEnter(GameState::Menu), (setup_menu, release_cursor))
+        .add_systems(OnExit(GameState::Menu), cleanup_menu)
         .insert_resource(LogTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
-        .add_systems(Startup, (setup, grab_cursor))
+        .add_systems(Startup, setup)
         .add_systems(Update, toggle_cursor_grab)
+        .add_systems(Update, menu_input.run_if(in_state(GameState::Menu)))
         .add_systems(
             Update,
-            (camera_controller, resolve_collisions, update_debug_text).chain(),
+            (camera_controller, resolve_collisions, update_debug_text)
+                .chain()
+                .run_if(in_state(GameState::Playing)),
         )
         .run();
+}
+
+fn cleanup_menu(mut commands: Commands, query: Query<Entity, With<MenuUi>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
+}
+
+fn menu_input(keys: Res<ButtonInput<KeyCode>>, mut next: ResMut<NextState<GameState>>) {
+    if keys.just_pressed(KeyCode::Space) {
+        next.set(GameState::Playing);
+    }
+}
+
+fn set_cursor(cursor: &mut CursorOptions, locked: bool) {
+    cursor.grab_mode = if locked {
+        CursorGrabMode::Locked
+    } else {
+        CursorGrabMode::None
+    };
+    cursor.visible = !locked;
+}
+
+fn lock_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
+    set_cursor(&mut cursor.single_mut().unwrap(), true);
+}
+
+fn release_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
+    set_cursor(&mut cursor.single_mut().unwrap(), false);
 }
 
 fn resolve_collisions(
@@ -99,27 +147,41 @@ fn resolve_collisions(
     }
     transform.translation = player_pos;
 }
-fn grab_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
-    let mut cursor = cursor.single_mut().unwrap();
-    cursor.grab_mode = CursorGrabMode::Locked;
-    cursor.visible = false;
-}
 
 fn toggle_cursor_grab(
     keys: Res<ButtonInput<KeyCode>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>,
+    game_state: Res<State<GameState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
 ) {
     let mut cursor = cursor.single_mut().unwrap();
     if keys.just_pressed(KeyCode::Escape) {
         cursor.grab_mode = CursorGrabMode::None;
         cursor.visible = true;
+        next_game_state.set(GameState::Paused);
     }
     if mouse_buttons.just_pressed(MouseButton::Left) {
         cursor.grab_mode = CursorGrabMode::Locked;
         cursor.visible = false;
+        next_game_state.set(GameState::Playing);
     }
 }
+
+fn setup_menu(mut commands: Commands) {
+    commands.spawn((
+        Text::new("Press space to start"),
+        Node {
+            width: percent(100),
+            height: percent(100),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        MenuUi,
+    ));
+}
+
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,

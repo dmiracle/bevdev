@@ -31,7 +31,12 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | How do I do a global find and replace? | Use `:%s/old/new/g` to replace across the whole file. |
 | 1 | Can I show 2 tabs side by side in nvim? | Not as tabs; use a vertical split with `:vsplit` or `:vsp`. |
 | 1 | How do I switch between splits in nvim? | Use `Ctrl-w` followed by `h`, `j`, `k`, or `l` to move between windows. |
+| 1 | When in a vertical split how do I navigate between splits? | Use `Ctrl-w h` and `Ctrl-w l` to move left and right. |
 | 1 | After a search with `/`, how do I set the cursor to the found word? | Press `Enter` to jump to the current match; `n` and `N` move through matches. |
+| 1 | How do I reset the buffer to the last saved state in nvim? | Use `:e!` to reload the file from disk and discard unsaved changes. |
+| 1 | How do I install plugins in nvim? | Use a plugin manager such as `lazy.nvim` and declare plugins in your Neovim config. |
+| 1 | What does `recording @u` mean in nvim and how do I end it? | You started recording a macro into register `u`; press `q` again to stop recording. |
+| 1 | My line numbers start at the current line in nvim. How do I get absolute line numbering? | Turn off `relativenumber` and keep `number` enabled. |
 
 ## Rust
 
