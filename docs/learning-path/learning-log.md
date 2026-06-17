@@ -6,7 +6,7 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 
 ## Current state
 
-- **Phase 5 Step 0 done ✅ — `main.rs` split into per-concern plugin modules** (`state`, `camera`, `collision`, `world`, `debug`); `main.rs` is now ~26 lines of `mod`/`use`/`add_plugins`. Game runs, full cycle verified. **Next: small cleanup pass to gate `toggle_cursor_grab` (Escape→Paused only in `Playing`, click→Playing only in `Paused`), then actual dungeon generation.** (Commit per phase — user runs git.)
+- **Phase 5 Step 0 done ✅ — `main.rs` split into per-concern plugin modules** (`state`, `camera`, `collision`, `world`, `debug`); `main.rs` is now ~26 lines of `mod`/`use`/`add_plugins`. Game runs, full cycle verified. **Cursor-grab cleanup also done**: `toggle_cursor_grab` split into gated `pause_game` (Escape, `in_state(Playing)`) + `resume_game` (click, `in_state(Paused)`), both cursor-free — cursor is now purely `OnEnter`-driven. Menu no longer responds to Escape/click. **Next: actual dungeon generation (plain-Rust grid/graph algorithm first, then spawn from it).** (Commit per phase — user runs git.)
 - Commits happen per phase on feature branches (user runs git).
 
 ## Open questions / deferred items
@@ -14,7 +14,6 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 - **Grounded movement** — `forward()` includes Y, so W while looking up flies. Correct fly-cam behavior for now; flatten forward/right to XZ when dungeon walking arrives (Phase 3/5).
 - **Player radius** — resolution chosen (Minkowski inflation of wall half-extents by `PLAYER_RADIUS` ~0.4 inside `resolve_collisions`); implementation in flight. Later: promote the const to a tunable (doorway widths in Phase 5 depend on it).
 - **Floor collider** — floor has no `Collider`; ground handling decision deferred.
-- **`toggle_cursor_grab` ungated** — runs in all states; Escape-from-menu reaches a nonsensical Paused, click-from-menu is a second menu exit. The deferred post-split cleanup: gate Escape→Paused to `in_state(Playing)`, click→Playing to `in_state(Paused)`. This is the next task before dungeon gen.
 
 ---
 

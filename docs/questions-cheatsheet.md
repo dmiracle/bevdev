@@ -93,6 +93,7 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | How do I run the rust linter? | Run `cargo clippy`. |
 | 1 | Should the linter catch different sized tabs in a Rust file? | Usually no. This is a formatting/editor setting issue, not something `clippy` is meant to enforce. Use `rustfmt` and editor tab settings. |
 | 1 | How do I run rustfmt on my project? | Run `cargo fmt` from the project root. |
+| 1 | How can I tell cargo fmt how many changes it made? | `cargo fmt` does not report a count; run it, then inspect `git diff --stat` or `git diff --shortstat`. |
 
 ## Rust + Neovim
 

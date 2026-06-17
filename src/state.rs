@@ -22,7 +22,8 @@ impl Plugin for StatePlugin {
             .add_systems(OnEnter(GameState::Paused), release_cursor)
             .add_systems(OnEnter(GameState::Menu), (setup_menu, release_cursor))
             .add_systems(OnExit(GameState::Menu), cleanup_menu)
-            .add_systems(Update, toggle_cursor_grab)
+            .add_systems(Update, pause_game.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, resume_game.run_if(in_state(GameState::Paused)))
             .add_systems(Update, menu_input.run_if(in_state(GameState::Menu)));
     }
 }
@@ -53,6 +54,18 @@ fn menu_input(keys: Res<ButtonInput<KeyCode>>, mut next: ResMut<NextState<GameSt
     }
 }
 
+fn pause_game(keys: Res<ButtonInput<KeyCode>>, mut next: ResMut<NextState<GameState>>) {
+    if keys.just_pressed(KeyCode::Escape) {
+        next.set(GameState::Paused);
+    }
+}
+
+fn resume_game(buttons: Res<ButtonInput<MouseButton>>, mut next: ResMut<NextState<GameState>>) {
+    if buttons.just_pressed(MouseButton::Left) {
+        next.set(GameState::Playing);
+    }
+}
+
 fn set_cursor(cursor: &mut CursorOptions, locked: bool) {
     cursor.grab_mode = if locked {
         CursorGrabMode::Locked
@@ -68,23 +81,4 @@ fn lock_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
 
 fn release_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
     set_cursor(&mut cursor.single_mut().unwrap(), false);
-}
-
-fn toggle_cursor_grab(
-    keys: Res<ButtonInput<KeyCode>>,
-    mouse_buttons: Res<ButtonInput<MouseButton>>,
-    mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>,
-    mut next_game_state: ResMut<NextState<GameState>>,
-) {
-    let mut cursor = cursor.single_mut().unwrap();
-    if keys.just_pressed(KeyCode::Escape) {
-        cursor.grab_mode = CursorGrabMode::None;
-        cursor.visible = true;
-        next_game_state.set(GameState::Paused);
-    }
-    if mouse_buttons.just_pressed(MouseButton::Left) {
-        cursor.grab_mode = CursorGrabMode::Locked;
-        cursor.visible = false;
-        next_game_state.set(GameState::Playing);
-    }
 }
