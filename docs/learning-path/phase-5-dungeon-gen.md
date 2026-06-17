@@ -4,7 +4,9 @@
 
 Generate a random, walkable, fully-enclosed level instead of a hand-placed room. **The heart of the game.**
 
-## Step 0 — Split `main.rs` into module-per-concern plugins (PRIORITY)
+## Step 0 — Split `main.rs` into module-per-concern plugins ✅ DONE
+
+Done: `main.rs` → `state`, `camera`, `collision`, `world`, `debug` plugin modules; `main.rs` is now `mod`/`use`/`add_plugins`. (Original framing below kept for reference.)
 
 Committed as the first task after Phase 4 (user-prioritized) — a hard prerequisite, on a green build, before any generation work:
 
