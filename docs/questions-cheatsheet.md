@@ -28,6 +28,7 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | How do I insert a newline above in nvim? | Press `O` in normal mode to open a line above and enter insert mode. |
 | 1 | How do I insert a line without going into insert mode? | Use `:put =''` to insert a blank line below, or `:put! =''` above. |
 | 1 | What does `Shift-J` do in nvim and how do I undo it? | `J` joins the current line with the next line; undo with `u`. |
+| 1 | How do I move a line forward or backward a tab stop in normal mode? | Use `>>` to indent the current line and `<<` to outdent it. |
 | 1 | How do I move a text block up or down in nvim? | In visual mode, select the block and use `:m '<-2` to move up or `:m '>+1` to move down. |
 | 1 | How do I remove a visual block and paste it at a certain line in nvim? | Yank or cut the selection with `d` or `y`, jump to the target line, then paste with `p` or `P`. |
 | 1 | How do I paste inline after a visual yank in nvim? | Use `p` to paste after the cursor or `P` to paste before it; for linewise yanks, `p` places it below the current line. |
@@ -73,6 +74,7 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | Can nvim tell me what file it loaded? | Use `:echo $MYVIMRC`, `:echo stdpath('config')`, or `:scriptnames`. |
 | 1 | How do I install plugins in nvim? | Use a plugin manager such as `lazy.nvim` and declare plugins in your Neovim config. |
 | 1 | What are the red triangles next to line numbers in LazyVim? | They are `gitsigns.nvim` Git delete/topdelete hunk markers from LazyVim's sign column config. |
+| 1 | What does a `0` beside a line number mean in LazyVim? | It is a sign-column marker; use `:sign place buffer=<bufnr>` or `:Inspect` on the line to identify the plugin/source. |
 
 ### LSP
 
@@ -94,6 +96,7 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | Should the linter catch different sized tabs in a Rust file? | Usually no. This is a formatting/editor setting issue, not something `clippy` is meant to enforce. Use `rustfmt` and editor tab settings. |
 | 1 | How do I run rustfmt on my project? | Run `cargo fmt` from the project root. |
 | 1 | How can I tell cargo fmt how many changes it made? | `cargo fmt` does not report a count; run it, then inspect `git diff --stat` or `git diff --shortstat`. |
+| 1 | How can I quickly count all lines in files below `./src`? | Use `find src -type f -print0 | xargs -0 wc -l` for a file-by-file count and total. |
 
 ## Rust + Neovim
 

@@ -15,6 +15,11 @@ Make it feel alive: animated characters and positional sound.
 - Spawning audio (`AudioPlayer` + source handle)
 - Controlling playback (volume, pause, speed)
 - **Spatial** 3D audio tied to entity `Transform`
+- **Background music** (non-spatial, global) — distinct from positional sound: one `AudioPlayer` with `PlaybackSettings::LOOP`, no `Transform`-based attenuation. Likely tie to game state (e.g. menu theme vs. dungeon track) via `OnEnter`.
+
+## User assets
+
+- User has their own **music artifacts** to add here (none in the repo yet — will drop them in when this phase starts). Audio files go under `assets/` and load via `asset_server.load("music/...")`. Decide on format then (Bevy reads `.ogg`/`.flac`/`.wav`/`.mp3` depending on enabled features — confirm the feature flags against the actual files at that point).
 
 ## Shopping list (docs.rs/bevy/0.18.1)
 

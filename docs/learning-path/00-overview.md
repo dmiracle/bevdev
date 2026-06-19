@@ -37,6 +37,10 @@ A staged pathway for building a **3D free-roam dungeon crawler** while learning 
 - **Examples (pin to your version):** https://github.com/bevyengine/bevy/tree/v0.18.1/examples
 - **Cheatbook** (unofficial, may lag versions): https://bevy-cheatbook.github.io/
 
+## Cross-cutting topics (not phases)
+
+- [profiling-performance.md](profiling-performance.md) — how to measure FPS/system cost; measure-before-optimizing. Flesh out when the dungeon scales or enemies arrive.
+
 ## How to use these docs
 
 Each phase file has the same shape: **Goal → Concepts → What to study → Dungeon tie-in → Done when.** Work top to bottom. Don't advance until the "Done when" milestone is met — each phase is a prerequisite for the next.
