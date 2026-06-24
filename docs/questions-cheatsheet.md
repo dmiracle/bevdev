@@ -55,6 +55,8 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | When in a vertical split how do I navigate between splits? | Use `Ctrl-w h` and `Ctrl-w l` to move left and right. |
 | 1 | How can I open a file in a new tab in nvim? | Use `:tabnew filename` or `:tabedit filename`. |
 | 2 | How do I switch to another tab in nvim? | Use `gt` for the next tab, `gT` for the previous tab, or `:tabnext N`; in LazyVim buffer tabs, use `Shift-l` / `Shift-h`. |
+| 1 | How do I show the file explorer in nvim? | In LazyVim, use `<leader>e`; built-in netrw can be opened with `:Explore`. |
+| 1 | How do I resize splits so editor screens are the same size in LazyVim? | Use `Ctrl-w =` to equalize window sizes. |
 
 ### Search
 

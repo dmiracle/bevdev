@@ -1,7 +1,12 @@
 use bevy::prelude::*;
-use rand::Rng;
 
-use super::{Map, Tile, DungeonGenerator};
+use super::{DungeonGenerator, Map, Tile};
+
+#[derive(Clone, Copy, Debug)]
+struct MapPosition {
+    x: usize,
+    y: usize,
+}
 
 pub struct BorderedRoom;
 impl DungeonGenerator for BorderedRoom {
@@ -26,12 +31,30 @@ impl DungeonGenerator for BorderedRoom {
     }
 }
 
+const N_STEPS: usize = 1000;
+
 pub struct DrunkenWalk;
 impl DungeonGenerator for DrunkenWalk {
     fn generate(&self, width: usize, height: usize) -> Map {
-        let tile = Tile::Wall;
-        let mut tiles = vec![tile.clone(); (width * height)];
-
+        let mut tiles = vec![Tile::Wall; width * height];
+        let mut pos = MapPosition {
+            x: width / 2,
+            y: height / 2,
+        };
+        for _ in 0..N_STEPS {
+            let index = pos.x + pos.y * width;
+            tiles[index] = Tile::Floor;
+            let step_dir: u8 = rand::random_range(0..4);
+            if step_dir == 0 && pos.x > 1 {
+                pos.x -= 1;
+            } else if step_dir == 1 && pos.y < height - 2 {
+                pos.y += 1;
+            } else if step_dir == 2 && pos.x < width - 2 {
+                pos.x += 1;
+            } else if pos.y > 1 {
+                pos.y -= 1;
+            }
+        }
         Map {
             tiles,
             width,

@@ -3,14 +3,20 @@ mod generator;
 use bevy::prelude::*;
 
 use crate::collision::Collider;
+use crate::state::GameState;
 use generator::{BorderedRoom, DrunkenWalk};
+
 pub struct DungeonPlugin;
 
 impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_dungeon);
+        app.add_systems(OnEnter(GameState::Playing), setup_dungeon)
+            .add_systems(OnExit(GameState::Playing), cleanup_dungeon);
     }
 }
+
+#[derive(Component)]
+struct DungeonTile;
 
 #[derive(Clone, Copy)]
 enum Tile {
@@ -61,6 +67,7 @@ fn setup_dungeon(
                     Collider {
                         half_extents: cube.half_size,
                     },
+                    DungeonTile,
                 ));
             }
             let pos = Vec3::new(i as f32 * TILE_SIZE, 0.0, j as f32 * TILE_SIZE);
@@ -70,5 +77,14 @@ fn setup_dungeon(
                 Transform::from_translation(pos),
             ));
         }
+    }
+}
+
+fn cleanup_dungeon(
+    mut commands: Commands,
+    tiles: Query<Entity, With<DungeonTile>>
+    ) {
+    for entity in &tiles {
+        commands.entity(entity).despawn();
     }
 }
