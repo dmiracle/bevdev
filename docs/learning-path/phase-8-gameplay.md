@@ -1,4 +1,4 @@
-# Phase 7 — Enemies, Combat, Items
+# Phase 8 — Enemies, Combat, Items
 
 ## Goal
 

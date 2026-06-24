@@ -1,4 +1,4 @@
-# Phase 6 — Real Art (glTF Models)
+# Phase 7 — Real Art (glTF Models)
 
 ## Goal
 
