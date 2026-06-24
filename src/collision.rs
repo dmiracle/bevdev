@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::camera::CameraController;
-use crate::state::GameState;
+use crate::state::Pause;
 
 #[derive(Component)]
 pub struct Collider {
@@ -22,7 +22,7 @@ impl Plugin for CollisionPlugin {
                 Update,
                 resolve_collisions
                     .after(crate::camera::camera_controller)
-                    .run_if(in_state(GameState::Playing)),
+                    .run_if(in_state(Pause::Running)),
             );
     }
 }

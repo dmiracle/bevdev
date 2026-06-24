@@ -89,6 +89,7 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 1 | Is there a way in nvim to move to the next function in Rust? | Try `]m` for the next method/function start and `[m` for the previous one. |
 | 1 | How do I exit comment mode after creating a newline under a comment in rust? | Press `Enter` or `o` to keep the comment, or disable auto-comment continuation with `:set formatoptions-=r formatoptions-=o`. |
 | 1 | How do I open a Rust definition in a new tab with rust-analyzer? | Use `:tab split | lua vim.lsp.buf.definition()` from the symbol, or map a key to that sequence. |
+| 1 | How can I refactor all instances of a name like `GameState` to `AppState`? | Put the cursor on the symbol and use LSP rename: `<leader>cr` in LazyVim or `:lua vim.lsp.buf.rename()`. |
 
 ## Rust
 

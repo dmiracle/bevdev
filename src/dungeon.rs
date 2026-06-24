@@ -10,8 +10,8 @@ pub struct DungeonPlugin;
 
 impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup_dungeon)
-            .add_systems(OnExit(GameState::Playing), cleanup_dungeon);
+        app.add_systems(OnEnter(GameState::InGame), setup_dungeon)
+            .add_systems(OnExit(GameState::InGame), cleanup_dungeon);
     }
 }
 
@@ -75,15 +75,13 @@ fn setup_dungeon(
                 Mesh3d(floor_mesh.clone()),
                 MeshMaterial3d(floor_mat.clone()),
                 Transform::from_translation(pos),
+                DungeonTile,
             ));
         }
     }
 }
 
-fn cleanup_dungeon(
-    mut commands: Commands,
-    tiles: Query<Entity, With<DungeonTile>>
-    ) {
+fn cleanup_dungeon(mut commands: Commands, tiles: Query<Entity, With<DungeonTile>>) {
     for entity in &tiles {
         commands.entity(entity).despawn();
     }

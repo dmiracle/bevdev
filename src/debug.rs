@@ -12,7 +12,7 @@ impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_debug).add_systems(
             Update,
-            update_debug_text.run_if(in_state(GameState::Playing)),
+            update_debug_text.run_if(in_state(GameState::InGame)),
         );
     }
 }

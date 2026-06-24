@@ -1,7 +1,7 @@
 use bevy::input::mouse::*;
 use bevy::prelude::*;
 
-use crate::state::GameState;
+use crate::state::Pause;
 
 #[derive(Component)]
 pub struct CameraController {
@@ -15,10 +15,7 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            camera_controller.run_if(in_state(GameState::Playing)),
-        );
+        app.add_systems(Update, camera_controller.run_if(in_state(Pause::Running)));
     }
 }
 fn get_direction(keys: &ButtonInput<KeyCode>, transform: &Transform) -> Vec3 {

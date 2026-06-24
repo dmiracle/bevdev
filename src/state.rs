@@ -6,7 +6,14 @@ use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
 pub enum GameState {
     #[default]
     Menu,
-    Playing,
+    InGame,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, SubStates)]
+#[source(GameState = GameState::InGame)]
+pub enum Pause {
+    #[default]
+    Running,
     Paused,
 }
 
@@ -18,13 +25,15 @@ pub struct StatePlugin;
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
-            .add_systems(OnEnter(GameState::Playing), lock_cursor)
-            .add_systems(OnEnter(GameState::Paused), release_cursor)
+            .add_sub_state::<Pause>()
+            .add_systems(OnEnter(Pause::Running), lock_cursor)
+            .add_systems(OnEnter(Pause::Paused), release_cursor)
             .add_systems(OnEnter(GameState::Menu), (setup_menu, release_cursor))
             .add_systems(OnExit(GameState::Menu), cleanup_menu)
-            .add_systems(Update, pause_game.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, resume_game.run_if(in_state(GameState::Paused)))
-            .add_systems(Update, menu_input.run_if(in_state(GameState::Menu)));
+            .add_systems(Update, pause_game.run_if(in_state(Pause::Running)))
+            .add_systems(Update, resume_game.run_if(in_state(Pause::Paused)))
+            .add_systems(Update, menu_input.run_if(in_state(GameState::Menu)))
+            .add_systems(Update, quit_to_menu.run_if(in_state(Pause::Paused)));
     }
 }
 
@@ -48,21 +57,32 @@ fn cleanup_menu(mut commands: Commands, query: Query<Entity, With<MenuUi>>) {
     }
 }
 
-fn menu_input(keys: Res<ButtonInput<KeyCode>>, mut next: ResMut<NextState<GameState>>) {
+fn menu_input(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next: ResMut<NextState<GameState>>,
+    mut sub_next: ResMut<NextState<Pause>>,
+) {
     if keys.just_pressed(KeyCode::Space) {
-        next.set(GameState::Playing);
+        next.set(GameState::InGame);
+        sub_next.set(Pause::Running);
     }
 }
 
-fn pause_game(keys: Res<ButtonInput<KeyCode>>, mut next: ResMut<NextState<GameState>>) {
+fn pause_game(keys: Res<ButtonInput<KeyCode>>, mut next: ResMut<NextState<Pause>>) {
     if keys.just_pressed(KeyCode::Escape) {
-        next.set(GameState::Paused);
+        next.set(Pause::Paused);
     }
 }
 
-fn resume_game(buttons: Res<ButtonInput<MouseButton>>, mut next: ResMut<NextState<GameState>>) {
+fn resume_game(buttons: Res<ButtonInput<MouseButton>>, mut next: ResMut<NextState<Pause>>) {
     if buttons.just_pressed(MouseButton::Left) {
-        next.set(GameState::Playing);
+        next.set(Pause::Running);
+    }
+}
+
+fn quit_to_menu(keys: Res<ButtonInput<KeyCode>>, mut next: ResMut<NextState<GameState>>) {
+    if keys.just_pressed(KeyCode::KeyQ) {
+        next.set(GameState::Menu);
     }
 }
 
