@@ -46,37 +46,31 @@ trait DungeonGenerator {
 
 pub fn setup_dungeon(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
     let generator = DrunkenWalk;
     let map = generator.generate(20, 15);
-
-    let floor_mesh = meshes.add(Plane3d::default().mesh().size(TILE_SIZE, TILE_SIZE));
-    let floor_mat = materials.add(Color::srgb(0.4, 0.1, 0.8));
-    let cube = Cuboid::from_size(Vec3::splat(TILE_SIZE));
-    let mesh = meshes.add(cube);
-    let mat = materials.add(Color::srgb(0.5, 0.5, 0.6));
+    let wall_scene: Handle<Scene> = asset_server.load("models/wall.glb#Scene0");
+    let floor_scene: Handle<Scene> = asset_server.load("models/floor.glb#Scene0");
 
     for j in 0..map.height {
         for i in 0..map.width {
             if matches!(map.get(i, j), Tile::Wall) {
-                let pos = Vec3::new(i as f32 * TILE_SIZE, TILE_SIZE / 2.0, j as f32 * TILE_SIZE);
+                let pos = Vec3::new(i as f32 * TILE_SIZE, 0.0, j as f32 * TILE_SIZE);
                 commands.spawn((
-                    Mesh3d(mesh.clone()),
-                    MeshMaterial3d(mat.clone()),
-                    Transform::from_translation(pos),
+                    SceneRoot(wall_scene.clone()),
+                    Transform::from_translation(pos).with_scale(Vec3::splat(2.0)),
                     Collider {
-                        half_extents: cube.half_size,
+                        half_extents: Vec3::splat(TILE_SIZE / 2.0),
+                        offset: Vec3::new(0.0, 1.0, 0.0),
                     },
                     DungeonTile,
                 ));
             }
             let pos = Vec3::new(i as f32 * TILE_SIZE, 0.0, j as f32 * TILE_SIZE);
             commands.spawn((
-                Mesh3d(floor_mesh.clone()),
-                MeshMaterial3d(floor_mat.clone()),
-                Transform::from_translation(pos),
+                SceneRoot(floor_scene.clone()),
+                Transform::from_translation(pos).with_scale(Vec3::splat(2.0)),
                 DungeonTile,
             ));
         }

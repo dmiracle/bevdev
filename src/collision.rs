@@ -6,6 +6,7 @@ use crate::state::Pause;
 #[derive(Component)]
 pub struct Collider {
     pub half_extents: Vec3,
+    pub offset: Vec3,
 }
 
 #[derive(Resource)]
@@ -45,7 +46,7 @@ fn resolve_collisions(
     // AABB -- Axis Aligned Bounding Box
     for (wall_transform, collider) in &walls {
         let half = collider.half_extents + Vec3::splat(PLAYER_RADIUS);
-        let center = wall_transform.translation;
+        let center = wall_transform.translation + collider.offset;
         let min = center - half;
         let max = center + half;
 

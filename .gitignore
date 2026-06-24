@@ -1,1 +1,26 @@
-/target
+# Rust build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo.lock is intentionally NOT ignored: this is a binary (game), so the
+# lockfile is committed for reproducible builds.
+
+# Bevy asset-processing cache (only if you enable the asset processor)
+/imported_assets/
+
+# Profiling / debugging output
+flamegraph.svg
+perf.data
+perf.data.old
+*.trace
+
+# macOS
+.DS_Store
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+assets/

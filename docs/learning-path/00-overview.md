@@ -26,8 +26,8 @@ A staged pathway for building a **3D free-roam dungeon crawler** while learning 
 | 4 | [phase-4-states.md](phase-4-states.md) | Game states & a menu — **done** ✅ |
 | 5 | [phase-5-dungeon-gen.md](phase-5-dungeon-gen.md) | Module/plugin reorg, then procedural dungeon generation — **done** ✅ |
 | 6 | [phase-6-movement.md](phase-6-movement.md) | Grounded first-person movement — **done** ✅ |
-| 7 | [phase-7-gltf.md](phase-7-gltf.md) | Real art via glTF models ← **current** |
-| 8 | [phase-8-gameplay.md](phase-8-gameplay.md) | Enemies, combat, items |
+| 7 | [phase-7-gltf.md](phase-7-gltf.md) | Real art via glTF models — **done** ✅ |
+| 8 | [phase-8-gameplay.md](phase-8-gameplay.md) | Enemies, combat, items ← **current** |
 | 9 | [phase-9-anim-audio.md](phase-9-anim-audio.md) | Animation & audio |
 | 10 | [phase-10-ui-polish.md](phase-10-ui-polish.md) | HUD & visual polish |
 
