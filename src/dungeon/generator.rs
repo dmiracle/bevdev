@@ -8,11 +8,12 @@ struct MapPosition {
     y: usize,
 }
 
+#[allow(dead_code)]
 pub struct BorderedRoom;
 impl DungeonGenerator for BorderedRoom {
     fn generate(&self, width: usize, height: usize) -> Map {
         let mut tiles = Vec::with_capacity(width * height);
-
+        let spawn = (width / 2, height / 2);
         for j in 0..height {
             for i in 0..width {
                 if i == 0 || j == 0 || i == width - 1 || j == height - 1 {
@@ -27,6 +28,7 @@ impl DungeonGenerator for BorderedRoom {
             tiles,
             width,
             height,
+            spawn,
         }
     }
 }
@@ -41,6 +43,7 @@ impl DungeonGenerator for DrunkenWalk {
             x: width / 2,
             y: height / 2,
         };
+        let spawn = (pos.x, pos.y);
         for _ in 0..N_STEPS {
             let index = pos.x + pos.y * width;
             tiles[index] = Tile::Floor;
@@ -59,6 +62,7 @@ impl DungeonGenerator for DrunkenWalk {
             tiles,
             width,
             height,
+            spawn,
         }
     }
 }

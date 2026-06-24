@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::camera::CameraController;
+use crate::camera::{CameraController, MovementMode};
 
 pub struct WorldPlugin;
 
@@ -28,6 +28,7 @@ fn setup(mut commands: Commands) {
             pitch: -0.4,
             speed: 5.0,
             sensitivity: 0.003,
+            mode: MovementMode::Walk,
         },
     ));
 }

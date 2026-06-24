@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::collision::Collider;
 use crate::state::GameState;
-use generator::{BorderedRoom, DrunkenWalk};
+use generator::DrunkenWalk;
 
 pub struct DungeonPlugin;
 
@@ -19,17 +19,19 @@ impl Plugin for DungeonPlugin {
 struct DungeonTile;
 
 #[derive(Clone, Copy)]
-enum Tile {
+pub enum Tile {
     Floor,
     Wall,
 }
 
-const TILE_SIZE: f32 = 2.0;
+pub const TILE_SIZE: f32 = 2.0;
 
-struct Map {
-    tiles: Vec<Tile>, // flat row major: index y * with + x
-    width: usize,
-    height: usize,
+#[derive(Resource)]
+pub struct Map {
+    pub tiles: Vec<Tile>, // flat row major: index y * with + x
+    pub width: usize,
+    pub height: usize,
+    pub spawn: (usize, usize),
 }
 
 impl Map {
@@ -42,7 +44,7 @@ trait DungeonGenerator {
     fn generate(&self, width: usize, height: usize) -> Map;
 }
 
-fn setup_dungeon(
+pub fn setup_dungeon(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -79,6 +81,8 @@ fn setup_dungeon(
             ));
         }
     }
+
+    commands.insert_resource(map);
 }
 
 fn cleanup_dungeon(mut commands: Commands, tiles: Query<Entity, With<DungeonTile>>) {

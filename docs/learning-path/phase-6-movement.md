@@ -2,17 +2,22 @@
 
 ## Goal
 
-Walk the dungeon instead of flying through it. Closes the long-deferred "grounded movement + floor collider" item.
+Add a **grounded (Walk) movement mode** alongside the existing **fly mode**, selectable by a `MovementMode` on the camera. Keep both; a runtime toggle between them is **out of scope** (future). Closes the long-deferred "grounded movement + floor collider" item.
 
-## The problem today
+## Design: two modes, one branch
 
-The camera is a free-fly cam: `get_direction` uses `transform.forward()`/`right()`, which include a Y component, so W while looking up/down flies. There's no notion of a floor or a walking height.
+- `enum MovementMode { Fly, Walk }`, stored as a `pub` field on `CameraController` (set at spawn in `world.rs`). The future toggle is just `controller.mode = ...` — nothing else changes.
+- `camera_controller` branches on the mode:
+  - **Fly** — current behavior, unchanged (full-3D `forward()`/`right()`, free Y).
+  - **Walk** — flatten the movement direction to XZ (`dir.y = 0.0`, `normalize_or_zero()`), then pin `translation.y` to a constant eye height (floor 0 + ~1.7).
+- `get_direction` stays as-is (returns raw 3D dir); the flatten + Y-pin live in `camera_controller`.
+- Mouse-look is full 3D in **both** modes — only *movement* is horizontalized in Walk.
 
 ## Concepts
 
-- **Flatten movement to the XZ plane**: take `forward()`/`right()`, zero the Y, re-`normalize_or_zero()`. Now W walks along the ground regardless of where you're looking. Mouse-look stays full 3D (pitch still aims the view up/down) — only *movement* is horizontalized.
-- **Fixed eye height**: clamp the camera's Y to a constant (floor height + eye height). Flat dungeon → no gravity, no floor collider needed (see the deferred-item reasoning: a wall-style collider on a flat floor would misbehave with the MTV resolver).
-- Wall collision is unchanged — `resolve_collisions` already stops you on the XZ axes.
+- **Flatten movement to the XZ plane**: zero the Y of the movement dir, re-`normalize_or_zero()`. Looking straight down + W → near-zero XZ → `normalize_or_zero` returns zero (no move, no NaN), which is correct.
+- **Fixed eye height (Walk)**: clamp the camera's Y to a constant. Flat dungeon → no gravity, no floor collider needed (a wall-style collider on a flat floor would misbehave with the MTV resolver).
+- Wall collision is unchanged in both modes — `resolve_collisions` already stops you on the XZ axes.
 
 ## Shopping list
 
@@ -29,4 +34,4 @@ You traverse the procedurally generated cave at human eye height; walls stop you
 
 ## Done when
 
-W/A/S/D move you horizontally at a constant height no matter where you look; you can't fly up or sink through the floor; wall collision still slides you. (Gravity + a downward ground-check only become necessary if terrain ever goes uneven/multi-level.)
+In **Walk** mode: W/A/S/D move you horizontally at a constant height no matter where you look; you can't fly up or sink through the floor; wall collision still slides you. **Fly** mode still behaves exactly as before. (Gravity + a downward ground-check only become necessary if terrain ever goes uneven/multi-level. Runtime toggle between modes is a future task.)

@@ -7,7 +7,8 @@ Granular record of concepts learned, bugs hit, and decisions made — organized 
 ## Current state
 
 - **Phase 5 done ✅ & committed.** Procedural dungeon (drunken-walk generator behind the `DungeonGenerator` trait + a `BorderedRoom`), sub-state pause model (`GameState{Menu,InGame}` + `Pause{Running,Paused}`), per-run dungeon lifecycle on `OnEnter/OnExit(InGame)` with `DungeonTile` cleanup. (Detail in the Phase 5 sections below.)
-- **Plan changed: Phase 6 is now Grounded Movement** (was glTF). glTF→7, gameplay→8, anim/audio→9, UI polish→10; files renamed to match. **Phase 6 task: flatten `forward()`/`right()` to XZ so WASD walks not flies, and clamp camera Y to a fixed eye height (no floor collider, no gravity — flat dungeon). Mouse-look stays full 3D.** This closes the deferred grounded-movement + floor-collider item. Mostly edits to `camera.rs`.
+- **Plan changed: Phase 6 is now Grounded Movement** (was glTF). glTF→7, gameplay→8, anim/audio→9, UI polish→10; files renamed to match.
+- **Phase 6 done ✅.** Dual movement modes: `MovementMode{Fly,Walk}` on `CameraController`; `camera_controller` branches (Walk = flatten dir to XZ + pin Y to `EYE_HEIGHT`; Fly unchanged). Runtime toggle deferred (future), designed in. **`Map` promoted to a `Resource`** (canonical cross-system sharing — `pub` shares the type, Resource shares the *value*) with `spawn: (usize,usize)` = walk start (guaranteed Floor). `init_camera_on_map` repositions the persistent camera on `OnEnter(InGame)`, `.after(setup_dungeon)`; converts tile→world with `* TILE_SIZE` (chose to expose `TILE_SIZE` to `camera.rs` rather than store a world-space `Vec3` — minor coupling accepted). Coord bug (axis swap + missing scale) found & fixed in review. **Next: Phase 7 — glTF models (replace primitive cubes with `.glb` scenes).**
 - Commits happen per phase on feature branches (user runs git).
 
 ## Open questions / deferred items
