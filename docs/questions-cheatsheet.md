@@ -57,6 +57,7 @@ Concise running log of questions asked so far. Repeated questions get a higher `
 | 2 | How do I switch to another tab in nvim? | Use `gt` for the next tab, `gT` for the previous tab, or `:tabnext N`; in LazyVim buffer tabs, use `Shift-l` / `Shift-h`. |
 | 1 | How do I show the file explorer in nvim? | In LazyVim, use `<leader>e`; built-in netrw can be opened with `:Explore`. |
 | 1 | How do I resize splits so editor screens are the same size in LazyVim? | Use `Ctrl-w =` to equalize window sizes. |
+| 1 | How do I open a terminal in my nvim window? | Use `:terminal`; in LazyVim, use `<leader>ft` for a floating terminal. |
 
 ### Search
 

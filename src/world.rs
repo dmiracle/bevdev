@@ -6,7 +6,12 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
+        app.add_systems(Startup, setup)
+            .insert_resource(GlobalAmbientLight {
+                color: Color::WHITE,
+                brightness: 10.0,
+                ..default()
+            });
     }
 }
 
@@ -16,9 +21,15 @@ fn setup(mut commands: Commands) {
             shadows_enabled: true,
             ..default()
         },
-        Transform::from_xyz(4.0, 8.0, 4.0),
+        Transform::from_xyz(20.0, 1.0, 15.0),
     ));
-
+    commands.spawn((
+        DirectionalLight {
+            shadows_enabled: true,
+            ..default()
+        },
+        Transform::from_xyz(20.0, 1.0, 15.0),
+    ));
     // Camera
     commands.spawn((
         Camera3d::default(),

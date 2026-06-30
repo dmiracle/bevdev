@@ -24,4 +24,4 @@ Don't restructure for performance until a profiler points at a specific cost. Pr
 
 ## When to flesh this out
 
-Natural trigger: once the dungeon scales up (large maps, many entities) or enemies/AI arrive (Phase 8), giving real frame-time questions to investigate. Until then this is a stub.
+Natural trigger: once the dungeon scales up (large maps, many entities) or enemies/AI arrive (Phase 9), or many lights land (Phase 8), giving real frame-time questions to investigate. Until then this is a stub.

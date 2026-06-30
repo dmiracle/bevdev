@@ -1,5 +1,7 @@
 # Phase 7 — Real Art (glTF Models)
 
+> **Status:** glTF *basics* were learned here (load a `.glb`, place a `SceneRoot`, `Collider.offset`). The project then **reverted to primitives** for development velocity — the full art integration (textures, modular tiles, mesh-AABB colliders, orientation) is consolidated into **Phase 12** (`phase-12-art.md`). This doc remains as the basics reference.
+
 ## Goal
 
 Replace primitive cubes with actual 3D models.

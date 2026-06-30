@@ -26,10 +26,12 @@ A staged pathway for building a **3D free-roam dungeon crawler** while learning 
 | 4 | [phase-4-states.md](phase-4-states.md) | Game states & a menu — **done** ✅ |
 | 5 | [phase-5-dungeon-gen.md](phase-5-dungeon-gen.md) | Module/plugin reorg, then procedural dungeon generation — **done** ✅ |
 | 6 | [phase-6-movement.md](phase-6-movement.md) | Grounded first-person movement — **done** ✅ |
-| 7 | [phase-7-gltf.md](phase-7-gltf.md) | Real art via glTF models — **done** ✅ |
-| 8 | [phase-8-gameplay.md](phase-8-gameplay.md) | Enemies, combat, items ← **current** |
-| 9 | [phase-9-anim-audio.md](phase-9-anim-audio.md) | Animation & audio |
-| 10 | [phase-10-ui-polish.md](phase-10-ui-polish.md) | HUD & visual polish |
+| 7 | [phase-7-gltf.md](phase-7-gltf.md) | glTF basics learned ✅ — **but project reverted to primitives; full art → Phase 12** |
+| 8 | [phase-8-lighting.md](phase-8-lighting.md) | Lighting & atmosphere (on primitives) ← **current** |
+| 9 | [phase-9-gameplay.md](phase-9-gameplay.md) | Enemies, combat, items |
+| 10 | [phase-10-anim-audio.md](phase-10-anim-audio.md) | Animation & audio |
+| 11 | [phase-11-ui-polish.md](phase-11-ui-polish.md) | HUD & visual polish |
+| 12 | [phase-12-art.md](phase-12-art.md) | Art & assets pass — glTF models, textures, modular tiles, mesh-AABB colliders (placement flexible) |
 
 ## Standing resources
 

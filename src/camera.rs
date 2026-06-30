@@ -1,7 +1,7 @@
 use bevy::input::mouse::*;
 use bevy::prelude::*;
 
-use crate::dungeon::{TILE_SIZE, Map, setup_dungeon};
+use crate::dungeon::{Map, TILE_SIZE, setup_dungeon};
 use crate::state::{GameState, Pause};
 
 pub const EYE_HEIGHT: f32 = 1.7;
@@ -26,7 +26,10 @@ pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, camera_controller.run_if(in_state(Pause::Running)))
-            .add_systems(OnEnter(GameState::InGame), init_camera_on_map.after(setup_dungeon));
+            .add_systems(
+                OnEnter(GameState::InGame),
+                init_camera_on_map.after(setup_dungeon),
+            );
     }
 }
 fn get_direction(keys: &ButtonInput<KeyCode>, transform: &Transform) -> Vec3 {
@@ -49,11 +52,7 @@ fn get_direction(keys: &ButtonInput<KeyCode>, transform: &Transform) -> Vec3 {
 fn init_camera_on_map(mut query: Query<&mut Transform, With<CameraController>>, map: Res<Map>) {
     let mut transform = query.single_mut().unwrap();
     let (x, z) = map.spawn;
-    let translate = Vec3::new(
-        x as f32 * TILE_SIZE, 
-        EYE_HEIGHT, 
-        z as f32 * TILE_SIZE
-    );
+    let translate = Vec3::new(x as f32 * TILE_SIZE, EYE_HEIGHT, z as f32 * TILE_SIZE);
     transform.translation = translate;
 }
 
